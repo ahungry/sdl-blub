@@ -373,6 +373,7 @@ return."
      (continue () :report "Continue")))
 
 (defun load-a-texture (filename)
+  "Read a texture (image file) and load it as an OpenGL texture"
   (let* ((texture (car (gl:gen-textures 1)))
          (image (sdl-image:load-image filename)))
     (gl:bind-texture :texture-2d texture)
@@ -484,6 +485,13 @@ return."
   )
 
 (defparameter *vecto-star* nil)
+(defparameter *left-portrait* nil)
+(defparameter *right-portrait* nil)
+
+(defun set-large-portrait ()
+  "Set the portrait for player chats"
+  (setf *left-portrait* (load-a-texture "~/src/lisp/sdl-blub/assets/portraits/Fighter-M-01-l.png"))
+  (setf *right-portrait* (load-a-texture "~/src/lisp/sdl-blub/assets/portraits/Fighter-M-01-r.png")))
 
 ;; Macro courtesy of http://3bb.cc/tutorials/cl-opengl/textures-part-4.html
 (defmacro with-vecto-canvas-as-texture ((width height) &body body)
@@ -643,6 +651,16 @@ return."
         (gl:tex-parameter :texture-2d :texture-min-filter :nearest)
         (gl:tex-parameter :texture-2d :texture-mag-filter :nearest)
         (my-rectangle :texcoords (get-sprite-gl-coords-portrait)))
+      (gl:with-pushed-matrix ;; Draw the big avatar
+        (gl:translate -.7 -.55 0)
+        (gl:scale .5 1 0)
+        (gl:bind-texture :texture-2d *left-portrait*)
+        (my-rectangle))
+      (gl:with-pushed-matrix ;; Draw the other big avatar
+        (gl:translate .7 -.55 0)
+        (gl:scale .5 1 0)
+        (gl:bind-texture :texture-2d *right-portrait*)
+        (my-rectangle))
       ))
   (gl:flush)
   (sdl:update-display))
@@ -653,6 +671,7 @@ return."
   (gl:blend-func :src-alpha :one-minus-src-alpha)
   (gl:enable :texture-2d)
   (vecto-star)
+  (set-large-portrait)
   (say "Welcome...")
   (set-forest-layers))
 
